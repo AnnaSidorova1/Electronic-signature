@@ -1,0 +1,90 @@
+import math
+
+
+def check_prime_number(x):
+    if x == 2:
+        return True
+    for i in range(2, int(math.sqrt(x)) + 1):
+        if x % i == 0:
+            return False
+    return True
+
+
+def make_group(p):
+    group = []
+    for i in range(1, p):
+        if math.gcd(i, p) == 1:
+            group.append(i)
+    return group
+
+
+# step 1 - input p
+print('Algoritm ElGamal')
+print('Enter prime number')
+p = int(input('p = '))
+
+# check prime number
+if not check_prime_number(p) or p == 1:
+    print('Wrong numbers p and q!')
+    quit()
+
+group_p = make_group(p)
+print(group_p)
+
+# step 2 - calculate g
+g = 2
+
+for i in range(2, p - 1):
+    cnt_pow = 1
+    length_period = 0
+    while pow(i, cnt_pow, p) != 1:
+        qqw = pow(i, cnt_pow, p)
+        cnt_pow += 1
+        length_period += 1
+    if length_period == len(group_p) - 1:
+        g = i
+        break
+print("g =", g)
+
+# step 3 - input x
+print('Enter number x from 2 to ' + str(p - 2))
+x = int(input('x = '))
+if x < 2 or x > p - 2:
+    print('Wrong number x!')
+    quit()
+
+# step 4 - calculate y
+y = pow(g, x, p)
+print('y = ', y)
+print(f'Public key: {p, g, y}')
+print(f'Private key: {p, g, x}')
+
+# step 5 - calculate k
+k = 2
+while math.gcd(k, p - 1) != 1:
+    k += 1
+print('k = ', k)
+
+# step 6 - message
+print('Enter message (number) from 1 to ' + str(p-1))
+message = int(input('Your message: '))
+if message < 1 or message > p-1:
+    print('Wrong message!')
+    quit()
+
+print(f'Original message: {message}')
+
+
+a = pow(g, k, p)
+if message - a*x < 0:
+    temp = (abs(message - a*x) // p + 1) * (p-1) - abs(message - a*x)
+    b = pow((temp * pow(k, -1, p-1)), 1, p-1)
+else:
+    b = ((message - a*x) * pow(k, -1, p-1)) % (p-1)
+print(f'Signature: {a, b}')
+
+
+if 0 < a < p and 0 < b < p - 1:
+    print('First condition is correct')
+    if (pow(y, a)*pow(a, b))%p == pow(g, message, p):
+        print('The signature is valid!')
