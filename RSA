@@ -49,10 +49,8 @@ if message < 1 or message > n-1:
 
 print(f'Original message:{message}')
 
-# encryption
-C = pow(message, e, n)
-print(f'Encrypted message: {C}')
-
-# decryption
-M = pow(int(C), d, n)
-print(f'Decrypted message: {M}')
+# signature
+s = pow(message, d, n)
+m_trust = pow(s, e, n)
+print(f'Signature: {s}')
+print(f'Message: {m_trust}')
