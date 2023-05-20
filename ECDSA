@@ -1,9 +1,6 @@
 import random
 
 
-# def number_inverse(number, mod):
-# return pow(number, -1, mod)
-
 curve_base_config = {
     'a': -7,
     'b': 10,
@@ -42,14 +39,9 @@ class Point:
         a = curve_parameters['a']
         b = curve_parameters['b']
         p = curve_parameters['p']
-
-        #if (y ** 2) % p != (x ** 3 + a * x + b) % p:
-          #  raise Exception("The point is not on the curve")
-
         self.x = x
         self.y = y
         self.curve_parameters = curve_parameters
-
 
 
     def is_equal_to(self, point):
@@ -89,16 +81,16 @@ print('Base parameters for example')
 
 N = 21
 n = 7
-print('a = ', curve_base_config['a'])
-print('b = ', curve_base_config['b'])
-print('p = ', curve_base_config['p'])
-print('N = ', N)
-print('n = ', n)
+print('a =', curve_base_config['a'])
+print('b =', curve_base_config['b'])
+print('p =', curve_base_config['p'])
+print('N =', N)
+print('n =', n)
 
 # step 2 - calculate h
 h = int(N / n)
 print('Other parameters')
-print('h = ', h)
+print('h =', h)
 
 # step 3 - base parameters for point
 x = 3
@@ -112,8 +104,8 @@ G = Point(tmp.x, tmp.y)
 print(f'G: {G.x, G.y}')
 
 # step 5 - input d
-d = 2
-print('d = ', d)
+d = 4
+print('d =', d)
 
 # step 6 - calculate H
 tmp = G.multiply(d)
@@ -121,29 +113,29 @@ H = Point(tmp.x, tmp.y)
 print(f'H: {H.x, H.y}')
 
 # step 7 - input z
-z = 10
-print('z = ', z)
+z = 8
+print('z =', z)
 
 # step 8 - input k
-k = 3
-print('k = ', k)
+k = 4
+print('k =', k)
 
 # step 9 - calculate G, r
 tmp = G.multiply(k)
 Q = Point(tmp.x, tmp.y)
 print(f'Q: {Q.x, Q.y}')
 r = Q.x % n
-print('r = ', r)
+print('r =', r)
 
 if r != 0:
     s = (calculate_reverse_number(k, n) * (z + r * d)) % n
-    print('s = ', s)
+    print('s =', s)
     if s != 0:
         Signature = Point(r, s)
         u1 = (calculate_reverse_number(s, n) * z) % n
         u2 = (calculate_reverse_number(s, n) * r) % n
-        print('u1 = ', u1)
-        print('u2 = ', u2)
+        print('u1 =', u1)
+        print('u2 =', u2)
         U_left = G.multiply(u1)
         U_right = H.multiply(u2)
         tmp = U_left.add(U_right)
