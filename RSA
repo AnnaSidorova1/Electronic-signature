@@ -54,3 +54,5 @@ s = pow(message, d, n)
 m_trust = pow(s, e, n)
 print(f'Signature: {s}')
 print(f'Message: {m_trust}')
+if message == m_trust:
+    print('The signature is valid!')
