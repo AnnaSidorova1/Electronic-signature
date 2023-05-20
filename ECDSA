@@ -1,0 +1,160 @@
+import random
+
+
+# def number_inverse(number, mod):
+# return pow(number, -1, mod)
+
+curve_base_config = {
+    'a': -7,
+    'b': 10,
+    'p': 17
+}
+
+def get_binary_number(number):
+    result = []
+    while number > 1:
+        t = number % 2
+        result.append(number % 2)
+        number = number // 2
+    result.append(number)
+    return result
+
+def gcdex(a, b):
+    if b == 0:
+        return a, 1, 0
+    else:
+        d, x, y = gcdex(b, a % b)
+        return d, y, x - y * (a // b)
+
+def calculate_for_modul(number, mod):
+    res = number % mod
+    if res < 0:
+        res += mod
+    return res
+
+def calculate_reverse_number(number, modul):
+    d, x, y = gcdex(modul, number)
+    return calculate_for_modul(y, modul)
+
+
+class Point:
+    def __init__(self, x, y, curve_parameters=curve_base_config):
+        a = curve_parameters['a']
+        b = curve_parameters['b']
+        p = curve_parameters['p']
+
+        #if (y ** 2) % p != (x ** 3 + a * x + b) % p:
+          #  raise Exception("The point is not on the curve")
+
+        self.x = x
+        self.y = y
+        self.curve_parameters = curve_parameters
+
+
+
+    def is_equal_to(self, point):
+        return self.x == point.x and self.y == point.y
+
+    def add(self, point):
+        p = self.curve_parameters['p']
+        a = self.curve_parameters['a']
+
+        if self.is_equal_to(point):
+            m = (3 * (point.x ** 2) + a) * pow(2 * point.y, -1, p) % p
+        else:
+            m = (point.y - self.y) * pow(point.x - self.x, -1, p) % p
+
+        x_R = (m ** 2 - point.x - self.x) % p
+        y_R = (m * (self.x - x_R) - self.y) % p
+        return Point(x_R, y_R, self.curve_parameters)
+
+    def multiply(self, count):
+        binary_num = get_binary_number(count)
+        result = Point(-1, -1)
+        current_point = self
+        for i in range(len(binary_num)):
+            if i != 0:
+                current_point = current_point.add(current_point)
+            if i < len(binary_num) and binary_num[i] == 1:
+                if result.x == -1:
+                    result = current_point
+                else:
+                    result = result.add(current_point)
+
+        return result
+
+print('Algoritm ECDSA')
+print('Base parameters for example')
+# step 1 - base parameters for elliptic curve
+
+N = 21
+n = 7
+print('a = ', curve_base_config['a'])
+print('b = ', curve_base_config['b'])
+print('p = ', curve_base_config['p'])
+print('N = ', N)
+print('n = ', n)
+
+# step 2 - calculate h
+h = int(N / n)
+print('Other parameters')
+print('h = ', h)
+
+# step 3 - base parameters for point
+x = 3
+y = 4
+P_point = Point(x, y, curve_base_config)
+print(f'Point P: {x, y}')
+
+# step 4 - calculate G
+tmp = P_point.multiply(h)
+G = Point(tmp.x, tmp.y)
+print(f'G: {G.x, G.y}')
+
+# step 5 - input d
+d = 2
+print('d = ', d)
+
+# step 6 - calculate H
+tmp = G.multiply(d)
+H = Point(tmp.x, tmp.y)
+print(f'H: {H.x, H.y}')
+
+# step 7 - input z
+z = 10
+print('z = ', z)
+
+# step 8 - input k
+k = 3
+print('k = ', k)
+
+# step 9 - calculate G, r
+tmp = G.multiply(k)
+Q = Point(tmp.x, tmp.y)
+print(f'Q: {Q.x, Q.y}')
+r = Q.x % n
+print('r = ', r)
+
+if r != 0:
+    s = (calculate_reverse_number(k, n) * (z + r * d)) % n
+    print('s = ', s)
+    if s != 0:
+        Signature = Point(r, s)
+        u1 = (calculate_reverse_number(s, n) * z) % n
+        u2 = (calculate_reverse_number(s, n) * r) % n
+        print('u1 = ', u1)
+        print('u2 = ', u2)
+        U_left = G.multiply(u1)
+        U_right = H.multiply(u2)
+        tmp = U_left.add(U_right)
+        U = Point(tmp.x, tmp.y)
+        print(f'U: {U.x, U.y}')
+        if r == U.x % n:
+            print('The signature is valid!')
+        else:
+            print('The signature is invalid!((')
+    else:
+        print('s = 0')
+else:
+    print('r = 0')
+
