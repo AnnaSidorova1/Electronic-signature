@@ -55,7 +55,7 @@ if x < 2 or x > p - 2:
 
 # step 4 - calculate y
 y = pow(g, x, p)
-print('y = ', y)
+print('y =', y)
 print(f'Public key: {p, g, y}')
 print(f'Private key: {p, g, x}')
 
@@ -63,28 +63,26 @@ print(f'Private key: {p, g, x}')
 k = 2
 while math.gcd(k, p - 1) != 1:
     k += 1
-print('k = ', k)
+print('k =', k)
 
 # step 6 - message
-print('Enter message (number) from 1 to ' + str(p-1))
+print('Enter message (number) from 1 to ' + str(p - 1))
 message = int(input('Your message: '))
-if message < 1 or message > p-1:
+if message < 1 or message > p - 1:
     print('Wrong message!')
     quit()
 
 print(f'Original message: {message}')
 
-
 a = pow(g, k, p)
-if message - a*x < 0:
-    temp = (abs(message - a*x) // p + 1) * (p-1) - abs(message - a*x)
-    b = pow((temp * pow(k, -1, p-1)), 1, p-1)
+if message - a * x < 0:
+    temp = (abs(message - a * x) // p + 1) * (p - 1) - abs(message - a * x)
+    b = pow((temp * pow(k, -1, p - 1)), 1, p - 1)
 else:
-    b = ((message - a*x) * pow(k, -1, p-1)) % (p-1)
+    b = ((message - a * x) * pow(k, -1, p - 1)) % (p - 1)
 print(f'Signature: {a, b}')
-
 
 if 0 < a < p and 0 < b < p - 1:
     print('First condition is correct')
-    if (pow(y, a)*pow(a, b))%p == pow(g, message, p):
+    if (pow(y, a) * pow(a, b)) % p == pow(g, message, p):
         print('The signature is valid!')
