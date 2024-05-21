@@ -37,10 +37,12 @@ g = 2
 for i in range(2, p - 1):
     cnt_pow = 1
     length_period = 0
-    while pow(i, cnt_pow, p) != 1:
+    while pow(i, cnt_pow, p) != 1 and length_period < len(group_p):
         qqw = pow(i, cnt_pow, p)
+        print (qqw)
         cnt_pow += 1
         length_period += 1
+    print(pow(i, cnt_pow, p))
     if length_period == len(group_p) - 1:
         g = i
         break
@@ -75,14 +77,15 @@ if message < 1 or message > p - 1:
 print(f'Original message: {message}')
 
 a = pow(g, k, p)
-if message - a * x < 0:
-    temp = (abs(message - a * x) // p + 1) * (p - 1) - abs(message - a * x)
-    b = pow((temp * pow(k, -1, p - 1)), 1, p - 1)
-else:
-    b = ((message - a * x) * pow(k, -1, p - 1)) % (p - 1)
+b = (message - a * x) * pow(k, -1, p - 1) % (p - 1)
+print(pow(k, -1, p-1))
 print(f'Signature: {a, b}')
 
 if 0 < a < p and 0 < b < p - 1:
     print('First condition is correct')
     if (pow(y, a) * pow(a, b)) % p == pow(g, message, p):
         print('The signature is valid!')
+    else:
+        print("The signature is not valid!")
+else:
+    print("The signature is not valid!")
