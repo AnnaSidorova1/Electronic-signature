@@ -56,3 +56,5 @@ print(f'Signature: {s}')
 print(f'Message: {m_trust}')
 if message == m_trust:
     print('The signature is valid!')
+else:
+    print('The signature is not valid!')
