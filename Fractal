@@ -2,23 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
-def mandelbrot(pmin, pmax, p_points, qmin, qmax, q_points,
-               max_iterations=200, infinity_border=2):
-    image = np.zeros((p_points, q_points)) #массив 500*500
-    p, q = np.mgrid[pmin:pmax:(p_points*1j), qmin:qmax:(q_points*1j)] #две отдельных сетки  
-    c = p + 1j*q #сложение массивов поэлементно (сетка)
-    z = np.zeros_like(c)
-    #print(z)
-    for k in range(max_iterations):
-        z = z**2 + c
-        flag = (np.abs(z) > infinity_border) & (image == 0)
-        image[flag] = k #заполнение строки массива количеством итераций (только там где True)
-        z[flag] = np.nan #если z проверено, то заменяем на nan
-    return -image.T, c
-
 def mandelbrot_2(pmin, pmax, p_points, qmin, qmax, q_points,
                max_iterations=200, infinity_border=2):
-    
     
     p, q = np.mgrid[pmin:pmax:(p_points*1j), qmin:qmax:(q_points*1j)] #две отдельных сетки  
     const = p + 1j*q #сложение массивов поэлементно (сетка) 
@@ -63,12 +48,8 @@ flag_input = isinstance(x, int)
 if not flag_input:
     print('Error input')
     quit()
-c_R = float(input('Input complex c: Re = '))
-c_I = float(input('Im = '))
-c = c_R + c_I*1j
-print(c)
 c = const[flag][580]
-
+print('C = ', c)
 
 #генерация секретного ключа для А (отправитель) (n, e)
 n = int(input('Input private number for A (more than x): '))
@@ -108,14 +89,10 @@ P_b = Z_k * d
 #B отправляет открытый ключ A
 
 #вычисление подписи А (отправителем) K_a
-#для подписи !!!! необходимо домножить на m
 q_n = P_b
 for i in range(n):
     q_n = q_n * c * e
 K_a = c**(n-x) * q_n * e
-
-#зашифровывание сообщения алгоритмом одноразовый блокнот с помощью закрытого ключа 
-#А отправляет зашифрованное сообщение В
 
 #вычисление подписи В (получателем) K_b (K_a = K_b!)
 #для подписи необходимо домножить на m
@@ -125,6 +102,5 @@ for i in range(k):
 K_b = c**(k-x) * q_k * d
 print('k_a = ', K_a)
 print('K_b = ', K_b)
-#расшифровывание сообщения тем же алгоритмом
-#если K_a*m == K_b*m, то подпись верна
+
 
