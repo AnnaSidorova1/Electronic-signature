@@ -117,7 +117,6 @@ print('K_b = ', K_b)
 message = int(input('Your message (int number): '))
 sign = K_a * message
 print(f'Signature: {sign}')
-print(K_b * message)
 if sign == K_b * message:
     print('The signature is valid!')
 else:
