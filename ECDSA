@@ -135,9 +135,9 @@ if r != 0:
         Q_left = G.multiply(u1)
         Q_right = H.multiply(u2)
         tmp = Q_left.add(Q_right)
-        Q = Point(tmp.x, tmp.y)
-        print(f'Q: {Q.x, Q.y}')
-        if r == Q.x % n:
+        Q_ = Point(tmp.x, tmp.y)
+        print(f'Q: {Q_.x, Q_.y}')
+        if r == Q_.x % n:
             print('The signature is valid!')
         else:
             print('The signature is invalid!((')
