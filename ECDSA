@@ -1,6 +1,3 @@
-import random
-
-
 curve_base_config = {
     'a': -7,
     'b': 10,
@@ -10,7 +7,6 @@ curve_base_config = {
 def get_binary_number(number):
     result = []
     while number > 1:
-        t = number % 2
         result.append(number % 2)
         number = number // 2
     result.append(number)
@@ -47,9 +43,9 @@ class Point:
     def is_equal_to(self, point):
         return self.x == point.x and self.y == point.y
 
-    def add(self, point):
-        p = self.curve_parameters['p']
+    def add(self, point):        
         a = self.curve_parameters['a']
+        p = self.curve_parameters['p']
 
         if self.is_equal_to(point):
             m = (3 * (point.x ** 2) + a) * pow(2 * point.y, -1, p) % p
@@ -136,12 +132,12 @@ if r != 0:
         u2 = (calculate_reverse_number(s, n) * r) % n
         print('u1 =', u1)
         print('u2 =', u2)
-        U_left = G.multiply(u1)
-        U_right = H.multiply(u2)
-        tmp = U_left.add(U_right)
-        U = Point(tmp.x, tmp.y)
-        print(f'U: {U.x, U.y}')
-        if r == U.x % n:
+        Q_left = G.multiply(u1)
+        Q_right = H.multiply(u2)
+        tmp = Q_left.add(Q_right)
+        Q = Point(tmp.x, tmp.y)
+        print(f'Q: {Q.x, Q.y}')
+        if r == Q.x % n:
             print('The signature is valid!')
         else:
             print('The signature is invalid!((')
@@ -149,4 +145,3 @@ if r != 0:
         print('s = 0')
 else:
     print('r = 0')
-
