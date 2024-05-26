@@ -2,9 +2,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
+def mandelbrot(pmin, pmax, p_points, qmin, qmax, q_points,
+               max_iterations=200, infinity_border=2):
+    image = np.zeros((p_points, q_points)) #массив 500*500
+    p, q = np.mgrid[pmin:pmax:(p_points*1j), qmin:qmax:(q_points*1j)] #две отдельных сетки  
+    c = p + 1j*q #сложение массивов поэлементно (сетка)
+    z = np.zeros_like(c)
+    #print(z)
+    for k in range(max_iterations):
+        z = z**2 + c
+        flag = (np.abs(z) > infinity_border) & (image == 0)
+        image[flag] = k #заполнение строки массива количеством итераций (только там где True)
+        z[flag] = np.nan #если z проверено, то заменяем на nan
+    return -image.T, c
+
 def mandelbrot_2(pmin, pmax, p_points, qmin, qmax, q_points,
                max_iterations=200, infinity_border=2):
-    
     p, q = np.mgrid[pmin:pmax:(p_points*1j), qmin:qmax:(q_points*1j)] #две отдельных сетки  
     const = p + 1j*q #сложение массивов поэлементно (сетка) 
 
@@ -18,38 +31,28 @@ def mandelbrot_2(pmin, pmax, p_points, qmin, qmax, q_points,
                 if abs(z) > infinity_border:
                     image[ip, iq] = 1
                     break
-    return image.T, const
+    return -image.T, const
 
-#image = mandelbrot(-0.793191078177363, 0.16093721735804, 1000, -0.793191, 0.160937, 1000)
 plt.figure(figsize=(10, 10))
-cmp = mpl.colors.ListedColormap(['#000000','#ffeeeb','#ffe7eb', '#ffffff'])
-norm = mpl.colors.BoundaryNorm([-80, -40, -1, 0], cmp.N)
-#окрашивание идет от отрицательных значений к положительным
 
 plt.xticks([])
 plt.yticks([])
 
 image, const = mandelbrot_2(-1.5, 0.5, 500, -1, 1, 500)
-#plt.imshow(image, interpolation='none', norm=norm, cmap=cmp)
-
 plt.imshow(image, cmap='Purples')
 plt.show()
 
 flag = np.zeros_like(image)
 flag = (image==0)
-print('mandelbrot3', const[flag][0])
-
-
 
 #выбор комплексного числа С (общего) и числа целого х 
-#С - из Мандельброта или нет?
 x = int(input('Input integer x: '))
 flag_input = isinstance(x, int)
 if not flag_input:
     print('Error input')
     quit()
-c = const[flag][580]
-print('C = ', c)
+c = const[flag][11584]
+print('C=', c)
 
 #генерация секретного ключа для А (отправитель) (n, e)
 n = int(input('Input private number for A (more than x): '))
@@ -58,15 +61,13 @@ if not flag_input:
     print('Error input')
     quit()
 
-e = const[flag][547]
+e = const[flag][49555]
 
 #генерация открытого ключа для А (отправитель) (P_a)
 Z_n = c
 for i in range(n):
     Z_n = Z_n * c**2 * e
 P_a = Z_n * e
-
-#A отправляет открытый ключ В
 
 #генерация секретного ключа для B (получатель) (k, d)
 k = int(input('Input private number for B (more than x): '))
@@ -75,10 +76,10 @@ if not flag_input:
     print('Error input')
     quit()
 
-d = const[flag][550]
+d = const[flag][820]
 
-print('e == ', e)
-print('d == ', d)
+print('e ==', e)
+print('d ==', d)
 
 #генерация открытого ключа для B (получатель) (P_b)
 Z_k = c
@@ -86,21 +87,25 @@ for i in range(k):
     Z_k = Z_k * c**2 * d
 P_b = Z_k * d
 
-#B отправляет открытый ключ A
-
-#вычисление подписи А (отправителем) K_a
 q_n = P_b
 for i in range(n):
     q_n = q_n * c * e
 K_a = c**(n-x) * q_n * e
+K_a = round(K_a.real, 9) + round(K_a.imag, 9) *1j
 
-#вычисление подписи В (получателем) K_b (K_a = K_b!)
-#для подписи необходимо домножить на m
+
 q_k = P_a
 for i in range(k):
     q_k = q_k * c * d
 K_b = c**(k-x) * q_k * d
+K_b = round(K_b.real, 9) + round(K_b.imag, 9) *1j
 print('k_a = ', K_a)
 print('K_b = ', K_b)
 
-
+message = int(input('Your message (int number): '))
+sign = K_a * message
+print(f'Signature: {sign}')
+if sign == K_b * message:
+    print('The signature is valid!')
+else:
+    print('The signature is not valid!')
