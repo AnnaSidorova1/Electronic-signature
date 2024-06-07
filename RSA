@@ -1,123 +1,60 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib as mpl
+import math
 
-def mandelbrot(pmin, pmax, p_points, qmin, qmax, q_points,
-               max_iterations=200, infinity_border=2):
-    image = np.zeros((p_points, q_points)) #массив 500*500
-    p, q = np.mgrid[pmin:pmax:(p_points*1j), qmin:qmax:(q_points*1j)] #две отдельных сетки  
-    c = p + 1j*q #сложение массивов поэлементно (сетка)
-    z = np.zeros_like(c)
-    #print(z)
-    for k in range(max_iterations):
-        z = z**2 + c
-        flag = (np.abs(z) > infinity_border) & (image == 0)
-        image[flag] = k #заполнение строки массива количеством итераций (только там где True)
-        z[flag] = np.nan #если z проверено, то заменяем на nan
-    return -image.T, c
-
-def mandelbrot_2(pmin, pmax, p_points, qmin, qmax, q_points,
-               max_iterations=200, infinity_border=2):
-    p, q = np.mgrid[pmin:pmax:(p_points*1j), qmin:qmax:(q_points*1j)] #две отдельных сетки  
-    const = p + 1j*q #сложение массивов поэлементно (сетка) 
-
-    image = np.zeros((p_points, q_points))
-    for ip, p in enumerate(np.linspace(pmin, pmax, p_points)):
-        for iq, q in enumerate(np.linspace(qmin, qmax, q_points)):
-            c = p + 1j * q
-            z = 0
-            for k in range(max_iterations):
-                z = z ** 2 + c
-                if abs(z) > infinity_border:
-                    image[ip, iq] = 1
-                    break
-    return image.T, const
-
-#image = mandelbrot(-0.793191078177363, 0.16093721735804, 1000, -0.793191, 0.160937, 1000)
-plt.figure(figsize=(10, 10))
-
-plt.xticks([])
-plt.yticks([])
-
-image, const = mandelbrot_2(-1.5, 0.5, 500, -1, 1, 500)
-
-plt.imshow(image, cmap='Purples')
-plt.show()
-
-flag = np.zeros_like(image)
-flag = (image==0)
-#print('mandelbrot3', const[flag][0])
+def check_prime_number(x):
+    if x == 2:
+        return True
+    for i in range(2, int(math.sqrt(x)) + 1):
+        if x % i == 0:
+            return False
+    return True
 
 
-#выбор комплексного числа С (общего) и числа целого х 
-#С - из Мандельброта или нет?
-x = int(input('Input integer x: '))
-flag_input = isinstance(x, int)
-if not flag_input:
-    print('Error input')
-    quit()
-#print(c)
-c = const[flag][11584]
-print('C=', c)
+print('Algoritm RSA')
+# step 1 - input q & p
+print('Enter two different prime number')
+p = int(input('p = '))
+q = int(input('q = '))
 
-#генерация секретного ключа для А (отправитель) (n, e)
-n = int(input('Input private number for A (more than x): '))
-flag_input = isinstance(n, int) & (n > x)
-if not flag_input:
-    print('Error input')
+# check prime number
+if not check_prime_number(p) or not check_prime_number(q) or p == q or p == 1 or q == 1:
+    print('Wrong numbers p and q!')
     quit()
 
-e = const[flag][11583]
+# step 2 - calculate n
+n = int(p * q)
+print("n =", n)
 
-#генерация открытого ключа для А (отправитель) (P_a)
-Z_n = c
-for i in range(n):
-    Z_n = Z_n * c**2 * e
-P_a = Z_n * e
+# step 3 - calculate e
+phi_n = (p - 1) * (q - 1)
+e = 3
+while (e < phi_n):
+    if math.gcd(e, phi_n) != 1:
+        e += 1
+    else:
+        break
+print("e =", e)
 
-#A отправляет открытый ключ В
+# step 4 - calculate d
+d = pow(e, -1, phi_n)
+print("d =", d)
+print(f'Public key: {e, n}')
+print(f'Private key: {d, n}')
 
-#генерация секретного ключа для B (получатель) (k, d)
-k = int(input('Input private number for B (more than x): '))
-flag_input = isinstance(k, int) & (k > x)
-if not flag_input:
-    print('Error input')
+# step 5 - message
+print('Enter message (number) from 1 to ' + str(n-1))
+message = int(input('Your message: '))
+if message < 1 or message > n-1:
+    print('Wrong message!')
     quit()
 
-d = const[flag][820]
+print(f'Original message:{message}')
 
-print('e ==', e)
-print('d ==', d)
-
-#генерация открытого ключа для B (получатель) (P_b)
-Z_k = c
-for i in range(k):
-    Z_k = Z_k * c**2 * d
-P_b = Z_k * d
-
-#B отправляет открытый ключ A
-
-#вычисление подписи А (отправителем) K_a
-q_n = P_b
-for i in range(n):
-    q_n = q_n * c * e
-K_a = c**(n-x) * q_n * e
-K_a = round(K_a.real, 9) + round(K_a.imag, 9) *1j
-
-
-#вычисление подписи В (получателем) K_b (K_a = K_b!)
-q_k = P_a
-for i in range(k):
-    q_k = q_k * c * d
-K_b = c**(k-x) * q_k * d
-K_b = round(K_b.real, 9) + round(K_b.imag, 9) *1j
-print('k_a = ', K_a)
-print('K_b = ', K_b)
-
-message = int(input('Your message (int number): '))
-sign = K_a * message
-print(f'Signature: {sign}')
-if sign == K_b * message:
+# signature
+s = pow(message, d, n)
+m_trust = pow(s, e, n)
+print(f'Signature: {s}')
+print(f'Message: {m_trust}')
+if message == m_trust:
     print('The signature is valid!')
 else:
     print('The signature is not valid!')
